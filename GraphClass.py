@@ -20,23 +20,22 @@ class GraphColoring:
         self.showResult(1)     
 
     def coloringSubFunction(self, currentNumber, current):
-        colors = self.colors
-        self.forwardChecking(colors, currentNumber)
+        colors =  [i for i in range(self.colorNumber)]
+        if currentNumber == 5: return
         if len(colors) > 0:
             check = False
             for j in range(self.nodeNumber):
                 if self.adjMatrix[currentNumber][j] == '1' and self.colorMatrix[j] == -1 and not check:
                     check = True
-                    print(">> Node[",current.number+1,"] : color:",colors,"")
-                    print(">> Node[",current.number+1,"] : color[",current.color,"]") 
-                    for x in range(len(colors)):
-                        newNode = node(current, j, colors[x])
-                        current.sons.append(newNode)
                     
-                    current = current.sons[0]
+                    self.forwardChecking(colors, j) 
+                    newNode = node(current, j, colors[0])
+                    current.sons.append(newNode)
+
+                    current = current.sons[0]                    
                     self.colorMatrix[j] = current.color
+                    print("*** Node[",j,"] : assigned color[",current.color,"]") 
                     currentNumber = current.number
-                    self.forwardChecking(colors, current.number)
                     break
             
             if not check:
@@ -50,7 +49,7 @@ class GraphColoring:
             if (self.adjMatrix[nodeNumber][k] == '1'):
                 if self.colorMatrix[k] in colors: colors.remove(self.colorMatrix[k]) #remove connection colors
 
-        print("> Node[",nodeNumber+1,"]: color:",colors)
+        print("> Node[",nodeNumber,"]: posible color:",colors)
 
     def arcConsistancyChecking(self):
         print("arcConsistancyChecking")
