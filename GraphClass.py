@@ -5,7 +5,7 @@ class GraphColoring:
         self.colorNumber = colorNumber
         self.nodeNumber = len(adjMatrix)
         self.colorMatrix = [-1]*self.nodeNumber
-        self.colors = [i for  i in range(colorNumber)]
+        self.colors = [i for i in range(colorNumber)]
 
     def show(self):
         print("Graph Adjacent Matrix: ")
@@ -14,51 +14,60 @@ class GraphColoring:
     
     def coloring(self):
         root = node(None,0,0)
-        self.colorMatrix[0] = 0
         currentNumber = 0
-        self.coloringSubFunction(currentNumber, root)
-        self.showResult(1)     
+        result = self.coloringSubFunction(currentNumber, root)
+        self.showResult(result)
 
     def coloringSubFunction(self, currentNumber, current):
-        colors =  [i for i in range(self.colorNumber)]
-        if currentNumber == 5: return
-        if len(colors) > 0:
-            check = False
-            for j in range(self.nodeNumber):
-                if self.adjMatrix[currentNumber][j] == '1' and self.colorMatrix[j] == -1 and not check:
-                    check = True
-                    
-                    self.forwardChecking(colors, j) 
-                    newNode = node(current, j, colors[0])
-                    current.sons.append(newNode)
+        
+        for i in range(self.nodeNumber):            
+            if(self.colorMatrix[i] == -1):
+                currentNumber = i
+                nextNode = self.canOpen(currentNumber)
+                #print("$ i[", currentNumber ,"]: nextNode[", nextNode ,"]")
+                while (nextNode > 0): # the number of next node that must be open, IF it is -1, it means that there is no node to open it
 
-                    current = current.sons[0]                    
-                    self.colorMatrix[j] = current.color
-                    print("*** Node[",j,"] : assigned color[",current.color,"]") 
-                    currentNumber = current.number
-                    break
-            
-            if not check:
-                self.colorMatrix[currentNumber] = 0
-            self.coloringSubFunction(currentNumber, current)
-        else: # there is no color
-            return False        
+                    colors =  [i for i in range(self.colorNumber)]
+                    self.forwardChecking(colors, currentNumber)
 
-    def forwardChecking(self, colors, nodeNumber):
+                    if ((len(colors) > 0) and (nextNode != -1)):                        
+                        
+                        self.colorMatrix[currentNumber] = colors[0]
+
+                        newNode = node(current, nextNode, -1)
+                        current.sons.append(newNode)                        
+
+                        current = current.sons[0]
+
+                        currentNumber = nextNode
+
+                        nextNode = self.canOpen(currentNumber)
+                    else:
+                        return False
+                if(nextNode == -1):
+                    colors =  [i for i in range(self.colorNumber)]
+                    self.forwardChecking(colors, currentNumber)
+                    self.colorMatrix[currentNumber] = colors[0]
+        return True
+
+    def forwardChecking(self, colors, number):
         for k in range(self.nodeNumber):
-            if (self.adjMatrix[nodeNumber][k] == '1'):
+            if (self.adjMatrix[number][k] == '1' and self.colorMatrix[k] != -1):
                 if self.colorMatrix[k] in colors: colors.remove(self.colorMatrix[k]) #remove connection colors
 
-        print("> Node[",nodeNumber,"]: posible color:",colors)
+        #print("> Node[",number,"]: posible color:",colors)
 
-    def arcConsistancyChecking(self):
-        print("arcConsistancyChecking")
+    def canOpen(self, number):
+        for i in range(self.nodeNumber):
+            if (self.adjMatrix[number][i] == '1' and self.colorMatrix[i] == -1):
+                return i
+        return -1
 
     
     def showResult(self, status):
-        if (status == 1):
-            print(">> Result:")
+        if (status):
+            print("==============================================\n>> Result:")
             for x in range(len(self.colorMatrix)):
-                print(">>>> Node[",x+1,"] : Color[",self.colorMatrix[x],"]")
+                print(">>>> Node[",x,"] : Color[",self.colorMatrix[x],"]")
         else:
             print("There is no way to coloring the graph with these number of colors.")
